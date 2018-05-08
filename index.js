@@ -8,6 +8,7 @@ function initProgram() {
         .version("0.1.0")
         .option("-i, --input [directory]", "pages directory", "../koohii-pages")
         .option("-o, --output [file]", "output json file", "../koohii.json")
+        .option("-d --dry", "do not write output")
         .parse(process.argv);
 }
 
@@ -34,7 +35,9 @@ function main() {
             data.pages.push(parser.parse(page));
         }
 
-        writeOutput(program.output, data);
+        if (!program.dry) {
+            writeOutput(program.output, data);
+        }
     } catch(error) {
         console.error(error);
     }
