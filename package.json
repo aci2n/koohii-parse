@@ -13,6 +13,7 @@
   "author": "i2n",
   "license": "GPL-3.0",
   "devDependencies": {
-    "commander": "^2.15.1"
+    "commander": "^2.15.1",
+    "jsdom": "^11.10.0"
   }
 }
