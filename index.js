@@ -1,6 +1,6 @@
 const fs = require("fs");
 const program = require("commander");
-const jsdom = require("jsdom");
+const cheerio = require("cheerio");
 const parser = require("./parser");
 
 function initProgram() {
@@ -12,9 +12,9 @@ function initProgram() {
         .parse(process.argv);
 }
 
-function* readPages(directory) {
+function* parsePages(directory) {
     for (let file of fs.readdirSync(directory)) {
-        yield new jsdom.JSDOM(fs.readFileSync(`${directory}/${file}`, "utf8"));
+        yield parser.parse(cheerio.load(fs.readFileSync(`${directory}/${file}`, "utf8")));
     }
 }
 
@@ -27,12 +27,15 @@ function main() {
     initProgram();
 
     try {
-        const data = {
-            pages: []
-        };
+        const data = {};
 
-        for (let page of readPages(program.input)) {
-            data.pages.push(parser.parse(page));
+        for (let page of parsePages(program.input)) {
+            if (page.kanji) {
+                data[page.kanji] = page;
+                console.log(`parsed page for ${page.kanji}`);
+            } else {
+                console.warn("invalid parse result", page);
+            }
         }
 
         if (!program.dry) {

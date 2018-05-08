@@ -13,7 +13,7 @@
   "author": "i2n",
   "license": "GPL-3.0",
   "devDependencies": {
-    "commander": "^2.15.1",
-    "jsdom": "^11.10.0"
+    "cheerio": "^1.0.0-rc.2",
+    "commander": "^2.15.1"
   }
 }

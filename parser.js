@@ -1,13 +1,5 @@
-function parse(dom) {
+function parse($) {
     const page = {};
-    const $ = (selector, context = dom.window.document) => context.querySelector(selector);
-    const $$ = (selector, context = dom.window.document) => Array.prototype.slice.call(context.querySelectorAll(selector));
-    const $prop = (selector, context, property) => {
-        const element = $(selector, context);
-        return element ? element[property] : null;
-    };
-    const $text = (selector, context) => $prop(selector, context, "textContent");
-    const $html = (selector, context) => $prop(selector, context, "innerHTML");
     const safeMatch = (text, regexp) => {
         const match = text && text.match(regexp);
         return match ? match[1] : null;
@@ -42,60 +34,60 @@ function parse(dom) {
     };
 
     page.kanji = coerce(
-        $text(".kanji"),
+        $(".kanji").text(),
         coerceNonEmptyString);
 
     page.frameNumber = coerce(
-        $text(".framenum"),
+        $(".framenum").text(),
         coerceInt);
 
     page.strokeCount = coerce(
-        safeMatch($text(".strokecount"), /\[(\d+)/),
+        safeMatch($(".strokecount").text(), /\[(\d+)/),
         coerceInt);
 
     page.onReading = coerce(
-        safeMatch($text(".strokecount"), /\](.+)/),
+        safeMatch($(".strokecount").text(), /\](.+)/),
         coerceNonEmptyString);
 
     page.keyword = coerce(
-        $text(".JSEditKeyword"),
+        $(".JSEditKeyword").text(),
         coerceNonEmptyString);
 
-    const parseStory = (story) => {
+    const parseStory = (index, story) => {
+        const $story = $(story);
+
         return {
             author: coerce(
-                $text(".sharedstory_author a", story),
+                $story.find(".sharedstory_author a").text(),
                 coerceNonEmptyString),
 
             lastModified: coerce(
-                $text(".lastmodified", story),
+                $story.find(".lastmodified").text(),
                 coerceDate),
 
             content: coerce(
-                $html(".story", story),
+                $story.find(".story").html(),
                 coerceNonEmptyString),
 
             favorites: coerce(
-                $text(".JsStar span", story),
+                $story.find(".JsStar span").text(),
                 coerceInt,
                 0),
 
             reports: coerce(
-                $text(".JsReport span", story),
+                $story.find(".JsReport span").text(),
                 coerceInt,
                 0)
         }
     };
 
     page.stories = {
-        own: $("#sv-textarea .empty") ? null : coerce(
-            $html("#sv-textarea"),
+        own: $("#sv-textarea .empty").length > 0 ? null : coerce(
+            $("#sv-textarea").html(),
             coerceNonEmptyString),
-        recent: $$("#sharedstories-new .sharedstory").map(parseStory),
-        popular: $$("#sharedstories-fav .sharedstory").map(parseStory),
+        recent: $("#sharedstories-new .sharedstory").map(parseStory).toArray(),
+        popular: $("#sharedstories-fav .sharedstory").map(parseStory).toArray(),
     }
-    
-    console.log(JSON.stringify(page, null, "  "));
 
     return page;
 }
