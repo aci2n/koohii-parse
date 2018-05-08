@@ -1,0 +1,18 @@
+{
+  "name": "koohii-parse",
+  "version": "1.0.0",
+  "description": "Parses Koohii pages into JSON format.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "parse",
+    "koohii"
+  ],
+  "author": "i2n",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "commander": "^2.15.1"
+  }
+}
