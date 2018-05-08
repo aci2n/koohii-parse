@@ -19,7 +19,7 @@ function* readPages(directory) {
 }
 
 function writeOutput(file, data) {
-    fs.writeFileSync(file, JSON.stringify(data));
+    fs.writeFileSync(file, JSON.stringify(data, null, "  "));
     console.log(`saved output to ${file}`);
 }
 

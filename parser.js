@@ -8,55 +8,38 @@ function parse(dom) {
     };
     const $text = (selector, context) => $prop(selector, context, "textContent");
     const $html = (selector, context) => $prop(selector, context, "innerHTML");
-
-    function safeMatch(text, regexp) {
+    const safeMatch = (text, regexp) => {
         const match = text && text.match(regexp);
         return match ? match[1] : null;
     }
+    const coerce = (value, coercer, fallback = null) => coercer(value, fallback);
+    const coerceNonEmptyString = (value, fallback) => {
+        let result = fallback;
 
-    function parseStory(story) {
-        return {
-            author: coerce(
-                $text(".sharedstory_author a", story),
-                coerceNonEmptyString),
-            lastModified: coerce(
-                $text(".lastmodified", story),
-                coerceDate),
-            html: coerce(
-                $html(".story", story),
-                coerceNonEmptyString),
-            favorites: coerce(
-                $text(".JsStar span", story),
-                coerceInt,
-                0),
-            reports: coerce(
-                $text(".JsReport span", story),
-                coerceInt,
-                0)
+        if (typeof value === "string") {
+            const trimmed = value.trim();
+
+            if (trimmed !== "") {
+                result = trimmed;
+            }
         }
-    }
 
-    function coerce(value, coercer, fallback = null) {
-        return coercer(value, fallback);
-    }
-
-    function coerceNonEmptyString(value, fallback) {
-        return (typeof value === "string" && value !== "") ? value.trim() : fallback;
-    }
-
-    function coerceInt(value, fallback) {
+        return result;
+    };
+    const coerceInt = (value, fallback) => {
         const int = parseInt(value);
         return isNaN(int) ? fallback : int;
-    }
-
-    function coerceDate(value, fallback) {
+    };
+    const coerceDate = (value, fallback) => {
         let result = fallback;
         const tokens = value.split("-", 3).map(token => parseInt(token));
+
         if (tokens.length === 3 && tokens.every(Number.isFinite)) {
             result = new Date(tokens[2], tokens[1], tokens[0]).getTime();
         }
+
         return result;
-    }
+    };
 
     page.kanji = coerce(
         $text(".kanji"),
@@ -77,6 +60,32 @@ function parse(dom) {
     page.keyword = coerce(
         $text(".JSEditKeyword"),
         coerceNonEmptyString);
+
+    const parseStory = (story) => {
+        return {
+            author: coerce(
+                $text(".sharedstory_author a", story),
+                coerceNonEmptyString),
+
+            lastModified: coerce(
+                $text(".lastmodified", story),
+                coerceDate),
+
+            content: coerce(
+                $html(".story", story),
+                coerceNonEmptyString),
+
+            favorites: coerce(
+                $text(".JsStar span", story),
+                coerceInt,
+                0),
+
+            reports: coerce(
+                $text(".JsReport span", story),
+                coerceInt,
+                0)
+        }
+    };
 
     page.stories = {
         own: $("#sv-textarea .empty") ? null : coerce(
