@@ -1,6 +1,7 @@
 const fs = require("fs");
 const program = require("commander");
 const jsdom = require("jsdom");
+const parser = require("./parser");
 
 function initProgram() {
     program
@@ -12,18 +13,13 @@ function initProgram() {
 
 function* readPages(directory) {
     for (let file of fs.readdirSync(directory)) {
-        yield fs.readFileSync(`${directory}/${file}`, "utf8");
+        yield new jsdom.JSDOM(fs.readFileSync(`${directory}/${file}`, "utf8"));
     }
 }
 
 function writeOutput(file, data) {
     fs.writeFileSync(file, JSON.stringify(data));
     console.log(`saved output to ${file}`);
-}
-
-function parsePage(page) {
-    const dom = new jsdom.JSDOM(page);
-    return {};
 }
 
 function main() {
@@ -35,7 +31,7 @@ function main() {
         };
 
         for (let page of readPages(program.input)) {
-            data.pages.push(parsePage(page));
+            data.pages.push(parser.parse(page));
         }
 
         writeOutput(program.output, data);
