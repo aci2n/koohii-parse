@@ -1,37 +1,44 @@
+function safeMatch(text, regexp) {
+    const match = text && text.match(regexp);
+    return match ? match[1] : null;
+}
+
+function coerce(value, coercer, fallback = null) {
+    return coercer(value, fallback);
+}
+
+function coerceNonEmptyString(value, fallback) {
+    let result = fallback;
+
+    if (typeof value === "string") {
+        const trimmed = value.trim();
+
+        if (trimmed !== "") {
+            result = trimmed;
+        }
+    }
+
+    return result;
+}
+
+function coerceInt(value, fallback) {
+    const int = parseInt(value);
+    return isNaN(int) ? fallback : int;
+}
+
+function coerceDate(value, fallback) {
+    let result = fallback;
+    const tokens = value.split("-", 3).map(token => parseInt(token));
+
+    if (tokens.length === 3 && tokens.every(Number.isFinite)) {
+        result = new Date(tokens[2], tokens[1], tokens[0]).getTime();
+    }
+
+    return result;
+}
+
 function parse($) {
     const page = {};
-    const safeMatch = (text, regexp) => {
-        const match = text && text.match(regexp);
-        return match ? match[1] : null;
-    }
-    const coerce = (value, coercer, fallback = null) => coercer(value, fallback);
-    const coerceNonEmptyString = (value, fallback) => {
-        let result = fallback;
-
-        if (typeof value === "string") {
-            const trimmed = value.trim();
-
-            if (trimmed !== "") {
-                result = trimmed;
-            }
-        }
-
-        return result;
-    };
-    const coerceInt = (value, fallback) => {
-        const int = parseInt(value);
-        return isNaN(int) ? fallback : int;
-    };
-    const coerceDate = (value, fallback) => {
-        let result = fallback;
-        const tokens = value.split("-", 3).map(token => parseInt(token));
-
-        if (tokens.length === 3 && tokens.every(Number.isFinite)) {
-            result = new Date(tokens[2], tokens[1], tokens[0]).getTime();
-        }
-
-        return result;
-    };
 
     page.kanji = coerce(
         $(".kanji").text(),
