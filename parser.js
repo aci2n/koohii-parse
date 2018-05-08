@@ -23,11 +23,13 @@ function coerceNonEmptyString(value, fallback) {
 
 function coerceInt(value, fallback) {
     const int = parseInt(value);
+    
     return isNaN(int) ? fallback : int;
 }
 
 function coerceDate(value, fallback) {
     let result = fallback;
+    
     const tokens = value.split("-", 3).map(token => parseInt(token));
 
     if (tokens.length === 3 && tokens.every(Number.isFinite)) {
@@ -39,6 +41,12 @@ function coerceDate(value, fallback) {
 
 function parse($) {
     const page = {};
+    
+    function parseStory(index, story) {
+        return coerce(
+            $(story).find(".story").html(),
+            coerceNonEmptyString);
+    }
 
     page.kanji = coerce(
         $(".kanji").text(),
@@ -60,33 +68,6 @@ function parse($) {
         $(".JSEditKeyword").text(),
         coerceNonEmptyString);
 
-    const parseStory = (index, story) => {
-        const $story = $(story);
-
-        return {
-            author: coerce(
-                $story.find(".sharedstory_author a").text(),
-                coerceNonEmptyString),
-
-            lastModified: coerce(
-                $story.find(".lastmodified").text(),
-                coerceDate),
-
-            content: coerce(
-                $story.find(".story").html(),
-                coerceNonEmptyString),
-
-            favorites: coerce(
-                $story.find(".JsStar span").text(),
-                coerceInt,
-                0),
-
-            reports: coerce(
-                $story.find(".JsReport span").text(),
-                coerceInt,
-                0)
-        }
-    };
 
     page.stories = {
         own: $("#sv-textarea .empty").length > 0 ? null : coerce(
