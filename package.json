@@ -2,7 +2,7 @@
   "name": "koohii-parse",
   "version": "1.0.0",
   "description": "Parses Koohii pages into JSON format.",
-  "main": "index.js",
+  "main": "parse.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
